@@ -11,8 +11,15 @@ cache = require('gulp-cache'),
 cssnano = require('gulp-cssnano'),
 imagemin = require('gulp-imagemin'),
 del = require('del'),
-runSequence = require('run-sequence');
+runSequence = require('run-sequence'),
+jshint = require("gulp-jshint");
 
+// task
+gulp.task('jsLint', function () {
+    gulp.src('app/js/*/*.js') // path to your files
+    .pipe(jshint())
+    .pipe(jshint.reporter()); // Dump results
+});
 
 gulp.task('clean:dist', function() {
   return del.sync('dist');
@@ -70,13 +77,13 @@ gulp.task('changesWatch', ['browserSync', 'compileLess'], function () {
 
 gulp.task('build', function (callback) {
   runSequence('clean:dist', 
-    ['compileLess', 'useref', 'images', 'fonts'],
+    ['compileLess', 'jsLint', 'useref', 'images', 'fonts'],
     callback
   )
 });
 
 gulp.task('default', function (callback) {
-  runSequence(['compileLess','browserSync', 'changesWatch'],
+  runSequence(['compileLess', 'jsLint', 'browserSync', 'changesWatch'],
     callback
   )
 });
