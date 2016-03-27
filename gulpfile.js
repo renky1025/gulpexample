@@ -1,4 +1,6 @@
 var gulp = require('gulp'),
+connect = require('gulp-connect'),
+concat  = require('gulp-concat'),
 browserSync = require('browser-sync'),
 less = require('gulp-less'),
 cssmin = require('gulp-minify-css'),
@@ -12,8 +14,18 @@ cssnano = require('gulp-cssnano'),
 imagemin = require('gulp-imagemin'),
 del = require('del'),
 runSequence = require('run-sequence'),
+sourcemaps = require('gulp-sourcemaps'),
 jshint = require("gulp-jshint");
 
+/*
+//server task
+gulp.task('webserver', function() {
+  connect.server({
+    port: 8081,
+    livereload: true
+  });
+});
+*/
 // task
 gulp.task('jsLint', function () {
     gulp.src('app/js/*/*.js') // path to your files
@@ -24,6 +36,7 @@ gulp.task('jsLint', function () {
 gulp.task('clean:dist', function() {
   return del.sync('dist');
 });
+// browswer Sync 
 
 gulp.task('browserSync', function() {
   browserSync({
@@ -42,6 +55,22 @@ gulp.task('useref', function(){
     .pipe(gulpIf('*.css', cssnano()))
     .pipe(gulp.dest('dist'));
 });
+/*
+gulp.task('buildjs', function(){
+  return gulp.src('app/js/*.js')
+    .pipe(sourcemaps.init()) //add sourcemaps
+    .pipe(uglify())
+    // combine all js in a js file
+    .pipe(concat('all.js'))
+    .pipe(gulp.dest('dist/js'));
+});
+
+gulp.task('buildstyle', function(){
+  return gulp.src('app/css/*.css')
+    .pipe(concat('all.css'))
+    .pipe(gulp.dest('dist/css'));
+});
+*/
 
 gulp.task('images', function(){
   return gulp.src('app/images/**/*.+(png|jpg|jpeg|gif|svg)')
@@ -57,7 +86,7 @@ gulp.task('fonts', function() {
   return gulp.src('app/fonts/**/*')
   .pipe(gulp.dest('dist/fonts'))
 });
-
+/*
 gulp.task('compileLess', function () {
     return gulp.src('app/less/*.less')
     	.pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
@@ -66,6 +95,15 @@ gulp.task('compileLess', function () {
 	    .pipe(browserSync.reload({
 	      stream: true
 	    }));
+});
+*/
+// connect to live reload less
+gulp.task('compileLess', function () {
+    return gulp.src('app/less/*.less')
+      .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
+      .pipe(less())
+      .pipe(gulp.dest('app/css'))
+      .pipe(connect.reload());
 });
 
 gulp.task('changesWatch', ['browserSync', 'compileLess'], function () {
@@ -77,13 +115,13 @@ gulp.task('changesWatch', ['browserSync', 'compileLess'], function () {
 
 gulp.task('build', function (callback) {
   runSequence('clean:dist', 
-    ['compileLess', 'jsLint', 'useref', 'images', 'fonts'],
+    ['compileLess','jsLint', 'useref', 'images', 'fonts'],
     callback
   )
 });
 
 gulp.task('default', function (callback) {
-  runSequence(['compileLess', 'jsLint', 'browserSync', 'changesWatch'],
+  runSequence(['webserver', 'compileLess', 'jsLint', 'browserSync', 'changesWatch'],
     callback
   )
 });
