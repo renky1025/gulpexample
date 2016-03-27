@@ -17,6 +17,9 @@ runSequence = require('run-sequence'),
 sourcemaps = require('gulp-sourcemaps'),
 jshint = require("gulp-jshint");
 
+var gulpLoadPlugins = require('gulp-load-plugins'),
+    plugins = gulpLoadPlugins();
+
 /*
 //server task
 gulp.task('webserver', function() {
@@ -55,16 +58,16 @@ gulp.task('useref', function(){
     .pipe(gulpIf('*.css', cssnano()))
     .pipe(gulp.dest('dist'));
 });
-/*
-gulp.task('buildjs', function(){
-  return gulp.src('app/js/*.js')
-    .pipe(sourcemaps.init()) //add sourcemaps
-    .pipe(uglify())
-    // combine all js in a js file
-    .pipe(concat('all.js'))
-    .pipe(gulp.dest('dist/js'));
-});
 
+gulp.task('buildjs', function () {
+   return gulp.src('app/js/*/*.js')
+      .pipe(plugins.jshint())
+      .pipe(plugins.jshint.reporter('default'))
+      .pipe(plugins.uglify())
+      .pipe(plugins.concat('app.js'))
+      .pipe(gulp.dest('dist/js'));
+});
+/*
 gulp.task('buildstyle', function(){
   return gulp.src('app/css/*.css')
     .pipe(concat('all.css'))

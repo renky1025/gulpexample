@@ -30,3 +30,5 @@ Want to build only one js file
 ```
 #Resource 
 http://julienrenaux.fr/2014/05/25/introduction-to-gulp-js-with-practical-examples/
+
+https://www.smashingmagazine.com/2014/06/building-with-gulp/
