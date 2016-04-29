@@ -431,36 +431,6 @@
     }],
     // Prevent missing parentheses around multilines JSX
     "react/wrap-multilines": 2,
-  },
-  "globals": {
-    // global
-    "window": true,
-    "document": false,
-    "module": false,
-
-    // closure library
-    "goog": false,
-    // main namespace
-    "hsw": true,
-
-    // 3rd party
-    "$": false,
-    "THREE": false,
-    "THREEx": false,
-    "Stats": false,
-    "Raphael": false,
-    "LZString": false,
-    "React": false,
-    "ReactDOM": false,
-
-    // global variables
-    "appSettingsUtil": false,
-    "ResourceManager": false,
-    "assert": false,
-    "log": false,
-
-    // To be removed
-    "hsMixpanel": false,
   }
 }
 
