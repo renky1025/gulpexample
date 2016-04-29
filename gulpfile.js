@@ -1,6 +1,6 @@
 var gulp = require('gulp'),
 connect = require('gulp-connect'),
-concat  = require('gulp-concat'),
+concat = require('gulp-concat'),
 browserSync = require('browser-sync'),
 less = require('gulp-less'),
 cssmin = require('gulp-minify-css'),
@@ -15,8 +15,13 @@ imagemin = require('gulp-imagemin'),
 del = require('del'),
 runSequence = require('run-sequence'),
 sourcemaps = require('gulp-sourcemaps'),
-jshint = require("gulp-jshint");
-
+jshint = require('gulp-jshint'),
+postcss = require('gulp-postcss'),
+stylelint = require('stylelint'),
+doiuse = require('doiuse'),
+immutableCss = require('immutable-css'),
+eslint = require('gulp-eslint'),
+reporter = require('postcss-reporter');
 var gulpLoadPlugins = require('gulp-load-plugins'),
     plugins = gulpLoadPlugins();
 
@@ -30,7 +35,7 @@ gulp.task('webserver', function() {
 });
 */
 // task
-gulp.task('jsLint', function () {
+gulp.task('jsLint', function() {
     gulp.src('app/js/*/*.js') // path to your files
     .pipe(jshint())
     .pipe(jshint.reporter()); // Dump results
@@ -39,17 +44,16 @@ gulp.task('jsLint', function () {
 gulp.task('clean:dist', function() {
   return del.sync('dist');
 });
-// browswer Sync 
-
+// browswer Sync
 gulp.task('browserSync', function() {
   browserSync({
     server: {
-      baseDir: 'app'
+      baseDir: 'app',
     },
-  })
+  });
 });
 
-gulp.task('useref', function(){
+gulp.task('useref', function() {
   return gulp.src('app/*.html')
     .pipe(useref())
     // Minifies only if it's a JavaScript file
@@ -59,13 +63,15 @@ gulp.task('useref', function(){
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('buildjs', function () {
+gulp.task('buildjs', function() {
    return gulp.src('app/js/*/*.js')
       .pipe(plugins.jshint())
       .pipe(plugins.jshint.reporter('default'))
       .pipe(plugins.uglify())
       .pipe(plugins.concat('app.js'))
       .pipe(gulp.dest('dist/js'));
+      // .pipe(eslint())
+      // .pipe(eslint.format());
 });
 /*
 gulp.task('buildstyle', function(){
@@ -75,19 +81,19 @@ gulp.task('buildstyle', function(){
 });
 */
 
-gulp.task('images', function(){
+gulp.task('images', function() {
   return gulp.src('app/images/**/*.+(png|jpg|jpeg|gif|svg)')
   // Caching images that ran through imagemin
   .pipe(cache(imagemin({
-      interlaced: true
+      interlaced: true,
     })))
-  .pipe(gulp.dest('dist/images'))
+  .pipe(gulp.dest('dist/images'));
 });
 
 //	Copying Fonts to Dist
 gulp.task('fonts', function() {
   return gulp.src('app/fonts/**/*')
-  .pipe(gulp.dest('dist/fonts'))
+  .pipe(gulp.dest('dist/fonts'));
 });
 /*
 gulp.task('compileLess', function () {
@@ -101,7 +107,7 @@ gulp.task('compileLess', function () {
 });
 */
 // connect to live reload less
-gulp.task('compileLess', function () {
+gulp.task('compileLess', function() {
     return gulp.src('app/less/*.less')
       .pipe(plumber({errorHandler: notify.onError('Error: <%= error.message %>')}))
       .pipe(less())
@@ -109,22 +115,33 @@ gulp.task('compileLess', function () {
       .pipe(connect.reload());
 });
 
-gulp.task('changesWatch', ['browserSync', 'compileLess'], function () {
-    gulp.watch('app/less/*.less', ['compileLess']); //当所有less文件发生改变时，调用testLess任务
+gulp.task('analyze-css', function() {
+  return gulp.src('app/css/*.css')
+    .pipe(postcss([
+      doiuse({
+        browsers: ['ie >= 10', 'last 2 versions'],
+      }),
+      immutableCss({
+        strict: true,
+      }),
+      stylelint(),
+      reporter(),
+    ]));
+});
+
+gulp.task('changesWatch', ['browserSync', 'compileLess'], function() {
+    gulp.watch('app/less/*.less', ['compileLess']); // 当所有less文件发生改变时，调用testLess任务
 	// Reloads the browser whenever HTML or JS files change
-	gulp.watch('app/*.html', browserSync.reload); 
-	gulp.watch('app/js/**/*.js', browserSync.reload); 
+	gulp.watch('app/*.html', browserSync.reload);
+	gulp.watch('app/js/**/*.js', browserSync.reload);
 });
 
-gulp.task('build', function (callback) {
-  runSequence('clean:dist', 
-    ['compileLess','jsLint', 'useref', 'images', 'fonts'],
-    callback
-  )
+gulp.task('build', function(callback) {
+  runSequence('clean:dist', ['compileLess', 'jsLint', 'useref', 'images', 'fonts'], callback);
 });
 
-gulp.task('default', function (callback) {
+gulp.task('default', function(callback) {
   runSequence(['webserver', 'compileLess', 'jsLint', 'browserSync', 'changesWatch'],
     callback
-  )
+  );
 });

@@ -1,6 +1,29 @@
 @testcolor: #fff;
 @titlesize: 14px;
-a{
-	color: @testcolor;
-	font-size: @titlesize;
+@textcolor: #ff0000;
+.hello{
+	color: @textcolor;
+	a{
+		color: @testcolor;
+		font-size: @titlesize;
+		text-shadow: 5px 5px 5px @textcolor;
+	}	
+}
+
+.world{
+	margin: 0px auto;
+	padding: 10px;
+	text-shadow: 5px 5px 5px @textcolor;
+}
+.title {
+  color: blue;
+  font-weight: bold;
+}
+
+.title {
+  color: green;
+}
+
+.article .title {
+  font-size: 1.2em;
 }
